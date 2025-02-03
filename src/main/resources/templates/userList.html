@@ -9,9 +9,8 @@
     <thead>
     <tr>
         <th>Id</th>
-        <th>Age</th>
         <th>Name</th>
-        <th>Email</th>
+        <th>Age</th>
         <th>Roles</th>
         <th>Action</th>
     </tr>
@@ -21,7 +20,6 @@
         <td><input type="number" th:value="${user.id}" /></td>
         <td><input type="text" th:value="${user.username}" /></td>
         <td><input type="number" th:value="${user.age}" /></td>
-        <td><input type="email" th:value="${user.email}" /></td>
         <td><input type="text" th:value="${user.roles}" /></td>
         <td>
             <a th:href="@{/admin/edit(username=${user.username})}">Edit</a>
