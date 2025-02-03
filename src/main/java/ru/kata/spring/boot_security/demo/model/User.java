@@ -38,11 +38,11 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String username, Integer age, String email) {
+    public User(Long id, String username, Integer age, String password) {
         this.id = id;
         this.username = username;
         this.age = age;
-        this.email = email;
+        this.password = password;
     }
 
     public void setPassword(String password) {
@@ -80,7 +80,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        return roles;
     }
 
     @Override
