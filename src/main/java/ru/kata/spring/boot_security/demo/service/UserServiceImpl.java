@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
+import ru.kata.spring.boot_security.demo.dao.UserDaoImpl;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
@@ -17,60 +19,47 @@ import java.util.Set;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
+    private final UserDaoImpl userDaoImpl;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserDaoImpl userDaoImpl) {
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
+        this.userDaoImpl = userDaoImpl;
     }
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userDaoImpl.getAllUsers();
     }
 
     @Transactional
     @Override
-    public void createUser(User user, List<Role> roles) {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            for (Role role : roles) {
-                if (role.getId() == null) {
-                    roleRepository.save(role);
-                }
-            }
-            user.setRoles(roles);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-        } else {
-            log.debug("User with username {} already exists", user.getUsername());
-        }
-
+    public void createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDaoImpl.createUser(user);
     }
 
     @Transactional
     @Override
     public void updateUser(User user) {
-        userRepository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDaoImpl.updateUser(user);
     }
 
     @Transactional
     @Override
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    public User findUser(String username) {
-        return userRepository.findByUsername(username);
+        userDaoImpl.deleteUser(id);
     }
 
     @Override
     public User findUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userDaoImpl.findUserById(id);
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return userDaoImpl.findUserByUsername(username);
     }
 }

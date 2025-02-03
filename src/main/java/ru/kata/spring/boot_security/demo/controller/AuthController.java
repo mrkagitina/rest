@@ -2,6 +2,8 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import java.security.Principal;
 
 @Controller
 public class AuthController {
+    PasswordEncoder passwordEncoder;
     private final UserService userService;
 
     @Autowired
@@ -29,19 +32,14 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/process_login")
-    public String login(@ModelAttribute("user") User user) {
-        return "/login";
-    }
-
-    @PostMapping("/select-role")
-    public ModelAndView selectRole(@RequestParam Role role) {
-        if ("ROLE_ADMIN".equals(role.getAuthority())) {
-            return new ModelAndView("redirect:/admin/userList");
-        } else if ("ROLE_USER".equals(role.getAuthority())) {
-            return new ModelAndView("redirect:/user/userInfo");
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password, @ModelAttribute User user, Model model) {
+        model.addAttribute("username", username);
+        model.addAttribute("password", password);
+        if (user.getRoles().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getName()))) {
+            return "redirect:/admin/userList";
         } else {
-            return new ModelAndView("redirect:/error");
+            return "redirect:/user/userInfo";
         }
     }
 
@@ -53,10 +51,10 @@ public class AuthController {
     @PostMapping("/register")
     public String registration(@ModelAttribute("user") User user) {
         try {
-            userService.createUser(user, user.getRoles());
+            userService.createUser(user);
         } catch (Exception e) {
             return "redirect:/error";
         }
-        return "role";
+        return "redirect:/login";
     }
 }

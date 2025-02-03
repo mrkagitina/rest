@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
 import java.util.List;
@@ -15,11 +16,11 @@ import java.util.Set;
 @Controller
 @RequestMapping("/user")
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping("/userInfo")
@@ -27,16 +28,15 @@ public class UserController {
         return "userInfo";
     }
 
-    @PutMapping("/edit")
-    public String showEditUserForm(@RequestParam("id") String useraname, Model model, Principal principal) {
-        User user = userService.findUser(principal.getName());
-        model.addAttribute("user", user);
+    @PatchMapping("/{id}/edit")
+    public String showEditUserForm(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("user", userServiceImpl.findUserById(id));
         return "edit";
     }
 
-    @PutMapping("/update")
-    public String updateUser(@RequestParam("role") List<Role> roles, @ModelAttribute("user") User user) {
-        userService.createUser(user, roles);
-        return "redirect:/userInfo";
+    @PatchMapping("/{id}/update")
+    public String update(@ModelAttribute("user") User user) {
+        userServiceImpl.updateUser(user);
+        return "redirect:/user/userInfo";
     }
 }

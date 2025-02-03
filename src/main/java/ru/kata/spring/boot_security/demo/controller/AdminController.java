@@ -1,13 +1,19 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
+import ru.kata.spring.boot_security.demo.dao.UserDaoImpl;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
 import java.util.List;
@@ -16,53 +22,49 @@ import java.util.Set;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final UserService userService;
+    PasswordEncoder passwordEncoder;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public AdminController(UserService userService) {
-        this.userService = userService;
+    public AdminController(UserServiceImpl userServiceImpl, PasswordEncoder passwordEncoder) {
+        this.userServiceImpl = userServiceImpl;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/userList")
-    public String listUsers(Model model, Principal principal) {
-        User currentUser = userService.findUser(principal.getName());
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("users", userService.getAllUsers());
+    public String listUsers(@ModelAttribute User user, Model model) {
+        model.addAttribute("user", user);
         return "userList";
     }
 
     @GetMapping("/new")
-    public String showAddUserForm(Model model) {
-        User user = new User();
-        model.addAttribute("user", user);
+    public String showAddUserForm() {
         return "addUser";
     }
 
     @PostMapping
     public String addUser(@ModelAttribute("user") User user) {
-        List<Role> roles = user.getRoles();
-        userService.createUser(user, roles);
-        return "redirect:/userList";
+        passwordEncoder.encode(user.getPassword());
+        userServiceImpl.createUser(user);
+        return "redirect:/admin/userList";
     }
 
-    @PutMapping("/editUser")
-    public String showEditUserForm(@RequestParam("username") String username, Model model, Principal principal) {
-        User user = userService.findUser(principal.getName());
-        model.addAttribute("user", user);
+    @GetMapping("/{id}/editUser")
+    public String edit(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("user", userServiceImpl.findUserById(id));
         return "editUser";
     }
 
-    @PutMapping("/update")
-    public String updateUser(@RequestParam("username") String username, @ModelAttribute("user") User user) {
-        user.setUsername(username);
-        List<Role> roles = user.getRoles();
-        userService.createUser(user, roles);
-        return "redirect:/userList";
+    @PatchMapping("/{id}/update")
+    public String update(@ModelAttribute("user") User user) {
+        passwordEncoder.encode(user.getPassword());
+        userServiceImpl.updateUser(user);
+        return "redirect:/admin/userList";
     }
 
-    @DeleteMapping("/delete")
-    public String deleteUser(@RequestParam("id") Long id) {
-        userService.deleteUser(id);
-        return "redirect:/userList";
-    }
+        @DeleteMapping("/{id}/delete")
+        public String delete (@PathVariable("id") Long id){
+            userServiceImpl.deleteUser(id);
+            return "redirect:/admin/list";
+        }
 }

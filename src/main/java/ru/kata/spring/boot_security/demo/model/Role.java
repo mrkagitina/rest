@@ -33,7 +33,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return "ROLE_" + getName();
+        return getName();
     }
 
     public Long getId() {

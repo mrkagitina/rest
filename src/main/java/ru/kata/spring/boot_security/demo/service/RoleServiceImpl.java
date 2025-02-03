@@ -11,23 +11,20 @@ import java.util.Set;
 
 @Service
 public class RoleServiceImpl implements RoleService {
+
     private final RoleRepository roleRepository;
 
     @Autowired
     public RoleServiceImpl(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
-    @Override
-    public List <Role> getRoles() {
-        return roleRepository.findAll();
+
+
+    public Role findByName(String name) {
+        return roleRepository.findByName(name);
     }
-    @Transactional
-    public Role findOrCreateRole(String roleName) {
-        return roleRepository.findByName(roleName)
-                .orElseGet(() -> {
-                    Role newRole = new Role();
-                    newRole.setName(roleName);
-                    return roleRepository.save(newRole);
-                });
+
+    public void save(Role role) {
+        roleRepository.save(role);
     }
 }
