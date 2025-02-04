@@ -6,13 +6,12 @@
     <title>Login page</title>
 </head>
 <body>
-<form name="f" method="post" action="@{/process_login}">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+<form name="f" method="post" action="/login">
   <label for="username">Enter username: </label>
-  <input type="text" name="username" id="username"/>
+  <input type="text" name="username" id="username" required/>
   <br/>
   <label for="password">Enter password: </label>
-  <input type="password" name="password" id="password"/>
+  <input type="password" name="password" id="password" required/>
   </br>
   <input type="submit" value="Login"/>
     <a th:href="@{/register}" style="text-decoration: none;">

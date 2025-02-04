@@ -53,11 +53,13 @@ public class UserServiceImpl implements UserService {
         userDaoImpl.deleteUser(id);
     }
 
+    @Transactional
     @Override
     public User findUserById(Long id) {
         return userDaoImpl.findUserById(id);
     }
 
+    @Transactional
     @Override
     public User findUserByUsername(String username) {
         return userDaoImpl.findUserByUsername(username);

@@ -26,9 +26,10 @@ public class AuthController {
     private final UserService userService;
 
     @Autowired
-    public AuthController(UserService userService, UserDetailsServiceImpl userDetailsServiceImpl) {
+    public AuthController(UserService userService, UserDetailsServiceImpl userDetailsServiceImpl, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/login")
@@ -44,7 +45,7 @@ public class AuthController {
     @PostMapping("/register")
     public String registration(@ModelAttribute("user") User user) {
         try {
-            passwordEncoder.encode(user.getPassword());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userService.createUser(user);
         } catch (Exception e) {
             return "redirect:/error";

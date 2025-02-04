@@ -24,9 +24,6 @@ public class User implements UserDetails {
     @Column(name="age")
     private Integer age;
 
-    @Column(name="email")
-    private String email;
-
     @Column(name = "password")
     private String password;
 
@@ -121,11 +118,4 @@ public class User implements UserDetails {
         this.age = age;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }

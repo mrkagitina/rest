@@ -24,20 +24,20 @@ public class UserController {
         this.userServiceImpl = userServiceImpl;
     }
 
-    @GetMapping("/userInfo")
-    public String showUserInfo(@ModelAttribute("user") User user) {
+    @GetMapping("/{id}/userInfo")
+    public String showUserInfo(@PathVariable Long id, @ModelAttribute("user") User user) {
+        userServiceImpl.findUserById(id);
         return "userInfo";
     }
 
-    @PatchMapping("/{id}/edit")
-    public String showEditUserForm(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userServiceImpl.findUserById(id));
+    @GetMapping("/{id}/edit")
+    public String editUser(@PathVariable Long id, Model model, Principal principal) {
+        String username = principal.getName();
+        User user = userServiceImpl.findUserById(id);
+        if (user == null || !user.getUsername().equals(username)) {
+            return "redirect:/error";
+        }
+        model.addAttribute("user", user);
         return "edit";
-    }
-
-    @PatchMapping("/{id}/update")
-    public String update(@ModelAttribute("user") User user) {
-        userServiceImpl.updateUser(user);
-        return "redirect:/user/userInfo";
     }
 }

@@ -5,6 +5,7 @@
     <title>User information</title>
 </head>
 <body>
+<form th:method="POST" th:action="@{/user/{id}(id=${user.getId()})/userInfo}" th:object="${user}">
 <table border="1">
   <thead>
   <tr>
@@ -27,6 +28,6 @@
   </tbody>
 </table>
 <a th:href="@{/logout}">
-  <button type="button">Logout</button>
-</a></body>
+  <button type="button">Logout</button><a></a>
+</body>
 </html>
