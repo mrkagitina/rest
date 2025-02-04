@@ -1,8 +1,10 @@
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,25 +42,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/login", "/register", "/process_login","/error").permitAll()
-                .antMatchers("/user", "/user/edit","/user/userInfo").hasAnyRole("USER","ADMIN")
-                .antMatchers("/admin","/admin/userList","/admin/delete","/admin/editUser","/admin/update","/admin/new").hasRole("ADMIN")
+                .antMatchers("/login", "/register", "/error", "/process_login").permitAll()
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
-                .defaultSuccessUrl("/user/userInfo")
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .successHandler(successUserHandler)
-                .failureForwardUrl("/login?error")
+                .defaultSuccessUrl("/user/userInfo", true)
+                .loginProcessingUrl("/process_login")
+                .failureUrl("/login?error=true")
                 .permitAll()
                 .and()
                 .logout()
-                .permitAll()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
-                .and()
-                .csrf().disable() ;
+                .permitAll();
     }
 }

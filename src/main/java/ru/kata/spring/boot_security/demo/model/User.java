@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Component
@@ -30,7 +31,7 @@ public class User implements UserDetails {
     private String password;
 
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List <Role> roles;
@@ -65,12 +66,6 @@ public class User implements UserDetails {
     }
 
     public List<Role> getRoles() {
-        if (roles == null) {
-            roles = new ArrayList<>();
-            roles.add(new Role("ROLE_USER"));
-        } else {
-            return roles;
-        }
         return roles;
     }
 
@@ -80,7 +75,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override

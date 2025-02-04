@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
     PasswordEncoder passwordEncoder;
     private final UserServiceImpl userServiceImpl;
@@ -44,7 +46,7 @@ public class AdminController {
         return "addUser";
     }
 
-    @PostMapping
+    @PostMapping("/new")
     public String addUser(@ModelAttribute("user") User user) {
         passwordEncoder.encode(user.getPassword());
         userServiceImpl.createUser(user);

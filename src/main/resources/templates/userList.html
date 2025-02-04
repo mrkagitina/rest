@@ -22,7 +22,7 @@
         <td><input type="number" th:value="${user.age}" /></td>
         <td><input type="text" th:value="${user.roles}" /></td>
         <td>
-            <a th:href="@{/admin/edit(username=${user.username})}">Edit</a>
+            <a th:href="@{/admin/{id}(id=${user.getId()})/editUser}">Edit</a>
             <a th:href="@{/admin/delete(id=${user.id})}">Delete</a>
         </td>
     </tr>
