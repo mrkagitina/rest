@@ -2,73 +2,65 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.dao.UserDao;
-import ru.kata.spring.boot_security.demo.dao.UserDaoImpl;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
-    PasswordEncoder passwordEncoder;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserServiceImpl userServiceImpl, PasswordEncoder passwordEncoder) {
-        this.userServiceImpl = userServiceImpl;
-        this.passwordEncoder = passwordEncoder;
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
-    @GetMapping("/userList")
-    public String listUsers(@ModelAttribute User user, Model model) {
-        List<User> userList = userServiceImpl.getAllUsers();
+    @GetMapping("")
+    public String userList(Model model) {
+        model.addAttribute("users", userService.findAll());
+        return "admin";
+    }
+
+    @GetMapping("/create")
+    public String createUser(User user, Model model) {
         model.addAttribute("user", user);
-        model.addAttribute("userList", userList);
-        return "userList";
+        model.addAttribute("roles", roleService.getRoles());
+        return "create";
     }
 
-    @GetMapping("/new")
-    public String showAddUserForm() {
-        return "addUser";
+    @PostMapping("/create")
+    public String createUser(User user) {
+        userService.save(user);
+        return "redirect:/admin";
     }
 
-    @PostMapping("/new")
-    public String addUser(@ModelAttribute("user") User user) {
-        passwordEncoder.encode(user.getPassword());
-        userServiceImpl.createUser(user);
-        return "redirect:/admin/userList";
+    @GetMapping("/update/{id}")
+    public String updateUser(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("user", userService.findById(id));
+        model.addAttribute("roles", roleService.getRoles());
+        return "update";
     }
 
-    @GetMapping("/{id}/editUser")
-    public String edit(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userServiceImpl.findUserById(id));
-        return "editUser";
+    @PatchMapping("/update")
+    public String updateUser(@ModelAttribute("user") User user) {
+        userService.update(user);
+        return "redirect:/admin";
     }
 
-    @PatchMapping("/{id}/update")
-    public String update(@ModelAttribute("user") User user) {
-        passwordEncoder.encode(user.getPassword());
-        userServiceImpl.updateUser(user);
-        return "redirect:/admin/userList";
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteById(id);
+        return "redirect:/admin";
     }
 
-        @DeleteMapping("/{id}/delete")
-        public String delete (@PathVariable("id") Long id){
-            userServiceImpl.deleteUser(id);
-            return "redirect:/admin/list";
-        }
 }

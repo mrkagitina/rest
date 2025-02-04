@@ -11,33 +11,24 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("user")
 public class UserController {
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/{id}/userInfo")
-    public String showUserInfo(@PathVariable Long id, @ModelAttribute("user") User user) {
-        userServiceImpl.findUserById(id);
-        return "userInfo";
-    }
-
-    @GetMapping("/{id}/edit")
-    public String editUser(@PathVariable Long id, Model model, Principal principal) {
-        String username = principal.getName();
-        User user = userServiceImpl.findUserById(id);
-        if (user == null || !user.getUsername().equals(username)) {
-            return "redirect:/error";
-        }
+    @GetMapping("")
+    public String showUsers(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
-        return "edit";
+        return "user";
     }
 }

@@ -11,49 +11,28 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Set;
 
-@Service
+@Component
 public class DBInitialization {
-
     private final UserService userService;
-    private final RoleService roleService; // Добавлен сервис для работы с ролями
-    private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
     @Autowired
-    public DBInitialization(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public DBInitialization(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
     public void init() {
-        Role adminRole = roleService.findByName("ROLE_ADMIN");
-        if (adminRole == null) {
-            adminRole = new Role();
-            adminRole.setName("ROLE_ADMIN");
-            roleService.save(adminRole);
-        }
+        Role admin = new Role("ROLE_ADMIN");
+        Role user = new Role("ROLE_USER");
 
-        Role userRole = roleService.findByName("ROLE_USER");
-        if (userRole == null) {
-            userRole = new Role();
-            userRole.setName("ROLE_USER");
-            roleService.save(userRole);
-        }
+        roleService.addRole(admin);
+        roleService.addRole(user);
 
-        User admin = new User();
-        admin.setUsername("admin");
-        admin.setAge(23);
-        admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setRoles(List.of(adminRole, userRole));
-        userService.createUser(admin);
-
-        User user = new User();
-        user.setUsername("user");
-        user.setAge(32);
-        user.setPassword(passwordEncoder.encode("user"));
-        user.setRoles(List.of(userRole));
-        userService.createUser(user);
+        userService.save(new User("admin", "admin@admin.com", "admin", Set.of(admin)));
+        userService.save(new User("user", "user@user.com", "user", Set.of(user)));
     }
 }
