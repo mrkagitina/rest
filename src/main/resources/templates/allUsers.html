@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <title></title>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-9" style="background-color: #333; height: 5vh;">
+      <h3 class="text-left" style="color: white; text-align: left; line-height: 5vh;">
+        <span th:text="${currentUser.name}" style="font-weight: bold;"></span>
+        <span style="font-weight: lighter;"> with roles: </span>
+        <span th:each="role : ${currentUser.roles}" th:text="${role.name.split('_')[1]} + ' '"
+              style="font-weight: lighter;"></span>
+      </h3>
+    </div>
+    <div class="col-md-3"
+         style="background-color: #333; text-align: right; height: 5vh; display: flex; align-items: center; justify-content: flex-end;">
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-transparent"
+                style="margin: 0; padding: 0; border: none; background-color: transparent;">
+          <span style="color: grey;">Logout</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-2" style="background-color: white; height: 95vh; padding-top: 20px">
+      <ul class="nav flex-column nav-pills">
+        <li class="nav-item">
+          <a class="nav-link active" href="/admin">Admin</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/currentAdminUser">User</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-md-10" style="background-color: #f0f0f0; height: 95vh; padding-top: 20px">
+      <h1>Admin panel</h1>
+
+      <div class="card-body" style="padding-left: 0px; margin-bottom: -20px;">
+        <ul class="nav nav-tabs mr-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#usersTable" data-toggle="tab">Users table</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#newUser" data-toggle="tab">New User</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card" id="usersTable">
+        <h5 class="card-header">All Users</h5>
+        <div class="card-block">
+          <table class="table table-hover">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Age</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+            </thead>
+
+            <tbody id="data">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="newUser" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="card">
+          <h5 class="card-header">Add new user</h5>
+          <div class="card-body w-50 p-3" style="margin: auto; text-align: center">
+
+            <form id="newUserForm">
+              <div class="form-group">
+                <label class="font-weight-bold" for="newName">First Name</label>
+                <input type="text" class="form-control" id="newName"
+                       placeholder="Name"
+                       name="name" value=""/>
+              </div>
+
+              <div class="form-group">
+                <label class="font-weight-bold" for="newLastName">Last name</label>
+                <input type="text" class="form-control" id="newLastName" placeholder="Last Name"
+                       name="lastName" value=""/>
+              </div>
+
+              <div class="form-group">
+                <label class="font-weight-bold" for="newAge">Age</label>
+                <input type="number" class="form-control" id="newAge" placeholder="Age"
+                       name="age"
+                       value=""/>
+              </div>
+
+              <div class="form-group">
+                <label class="font-weight-bold" for="newEmail">Email</label>
+                <input type="text" class="form-control" id="newEmail" placeholder="Email"
+                       name="email" value=""/>
+              </div>
+
+              <label class="font-weight-bold" for="newPassword">Password</label>
+              <input type="password" id="newPassword" class="form-control"
+                     aria-describedby="passwordHelpBlock" name="password" autocomplete="off"
+                     value="" placeholder="Password"/>
+
+              <div class="form-group">
+                <label for="newRoles" class="font-weight-bold">Roles</label>
+                <select multiple class="form-control" id="newRoles">
+                  <option th:each="role : ${roles}" th:text="${role.name.split('_')[1] + ' '}"
+                          th:value="${role.id}"></option>
+                </select>
+              </div>
+
+              <div class="row">
+                <button type="button" class="btn btn-success" id="addNewUser"
+                        style="margin: auto">Add new user
+                </button>
+              </div>
+            </form>
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="myEditBlock" id="myEditBlock">
+
+</div>
+
+<div class="myDeleteBlock" id="myDeleteBlock">
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+<script>
+  window.addEventListener('hashchange', function () {
+    var activeTab = window.location.hash;
+
+    document.querySelectorAll('.nav-link').forEach(function (tab) {
+      tab.classList.remove('active');
+    });
+
+    document.querySelector('[href="' + activeTab + '"]').classList.add('active');
+  });
+</script>
+<script type="text/javascript" th:src="@{/addNewUser.js}"></script>
+<script type="text/javascript" th:src="@{/deleteUser.js}"></script>
+<script type="text/javascript" th:src="@{/updateUser.js}"></script>
+<script type="text/javascript" th:src="@{/printAllUsers.js}"></script>
+</body>
+</html>
