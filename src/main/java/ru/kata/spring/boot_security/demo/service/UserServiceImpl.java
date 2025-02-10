@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.DTO.UserDto;
+import ru.kata.spring.boot_security.demo.DTO.UserMapper;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
@@ -24,13 +26,15 @@ import java.util.Set;
 @Service
 public class UserServiceImpl implements UserService{
 
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -52,29 +56,42 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public User update(User user) {
-        User userFromDb = userRepository.getById(user.getId());
-        userFromDb.setName(user.getName());
-        userFromDb.setLastname(user.getLastname());
-        userFromDb.setAge(user.getAge());
-        userFromDb.setEmail(user.getEmail());
-        if (user.getPassword() != null && !user.getPassword().isEmpty() && !user.getPassword().equals(userFromDb.getPassword())) {
-            userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+    public UserDto update(UserDto userDto) {
+        User userFromDb = userRepository.getById(userDto.getId());
+        userFromDb.setName(userDto.getName());
+        userFromDb.setLastname(userDto.getLastname());
+        userFromDb.setAge(userDto.getAge());
+        userFromDb.setEmail(userDto.getEmail());
+
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty() &&
+                !userDto.getPassword().equals(userFromDb.getPassword())) {
+            userFromDb.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
-        userFromDb.setRoles(user.getRoles());
-        return userRepository.save(userFromDb);
+
+        userFromDb.setRoles(userDto.getRoles());
+        User updatedUser = userRepository.save(userFromDb);
+        return convertToDto(updatedUser);
     }
 
     @Override
     @Transactional
-    public void save(User user) {
-        User userFromDb = userRepository.findByUsername(user.getUsername());
+    public UserDto save(UserDto userDto) {
+        User userFromDb = userRepository.findByUsername(userDto.getName());
         if (userFromDb != null) {
             throw new DuplicateKeyException("Такой пользователь уже существует");
         }
-        user.setRoles(user.getRoles());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+
+        User newUser = new User();
+        newUser.setName(userDto.getName());
+        newUser.setLastname(userDto.getLastname());
+        newUser.setAge(userDto.getAge());
+        newUser.setName(userDto.getName());
+        newUser.setEmail(userDto.getEmail());
+        newUser.setRoles(userDto.getRoles());
+        newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+        User savedUser = userRepository.save(newUser);
+        return convertToDto(savedUser);
     }
 
     @Override
@@ -83,4 +100,7 @@ public class UserServiceImpl implements UserService{
         userRepository.deleteById(id);
     }
 
+    public UserDto convertToDto(User userFromDb) {
+        return userMapper.convertToDto(userFromDb);
+    }
 }

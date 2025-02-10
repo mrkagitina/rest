@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.DTO.UserDto;
+import ru.kata.spring.boot_security.demo.DTO.UserMapper;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
@@ -20,11 +22,13 @@ public class RestApiController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public RestApiController(UserService userService, RoleServiceImpl roleService) {
+    public RestApiController(UserService userService, RoleServiceImpl roleService, UserMapper userMapper) {
         this.userService = userService;
         this.roleService = roleService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping
@@ -56,7 +60,9 @@ public class RestApiController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        userService.save(user);
+        UserDto userDto = userMapper.convertToDto(user);
+        userService.save(userDto);
+        user = userMapper.toEntity(userDto, user);
         return ResponseEntity.ok(user);
     }
 
@@ -65,7 +71,9 @@ public class RestApiController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        userService.update(user);
+        UserDto userDto = userMapper.convertToDto(user);
+        userService.update(userDto);
+        user = userMapper.toEntity(userDto, user);
         return ResponseEntity.ok(user);
     }
 
