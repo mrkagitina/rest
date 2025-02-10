@@ -23,27 +23,27 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
-    private final RoleServiceImpl roleServiceImpl;
+    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
-        this.roleServiceImpl = roleServiceImpl;
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping
     public String listOfUsers(Model model, Principal principal) {
-        model.addAttribute("allUsers", userServiceImpl.allUsers());
-        model.addAttribute("currentUser", userServiceImpl.findByUsername(principal.getName()));
-        model.addAttribute("roles", roleServiceImpl.getAllRoles());
+        model.addAttribute("allUsers", userService.allUsers());
+        model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
+        model.addAttribute("roles", roleService.getAllRoles());
         return "allUsers";
     }
 
     @GetMapping("/currentAdminUser")
     public String showCurrentUser(Model model, Principal principal) {
-        model.addAttribute("currentAdminUser", userServiceImpl.findByUsername(principal.getName()));
+        model.addAttribute("currentAdminUser", userService.findByUsername(principal.getName()));
         return "currentAdminUser";
     }
 }

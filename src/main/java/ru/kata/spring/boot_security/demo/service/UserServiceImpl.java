@@ -22,11 +22,9 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -35,28 +33,25 @@ public class UserServiceImpl implements UserService{
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    @Transactional(readOnly = true)
     @Override
     public User findByUsername(String username) {
         Optional<User> userFromDb = Optional.ofNullable(userRepository.findByUsername(username));
         return userFromDb.orElseThrow(() -> new EntityNotFoundException("Пользователь с именем " + username + " не найден"));
     }
 
-
-    @Transactional(readOnly = true)
     @Override
     public User getById(Long id) {
         Optional<User> userFromDb = userRepository.findById(id);
         return userFromDb.orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
-    @Transactional(readOnly = true)
+
     @Override
     public List<User> allUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public User update(User user) {
         User userFromDb = userRepository.getById(user.getId());
         userFromDb.setName(user.getName());
@@ -71,6 +66,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void save(User user) {
         User userFromDb = userRepository.findByUsername(user.getUsername());
         if (userFromDb != null) {
@@ -82,6 +78,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
