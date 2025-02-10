@@ -1,5 +1,5 @@
 async function getAllUser() {
-    const res = await fetch("http://localhost:8080/api");
+    const res = await fetch("http://localhost:8080/myDB");
     const users = await res.json();
 
     users.forEach(user => {

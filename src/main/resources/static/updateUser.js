@@ -19,7 +19,7 @@ async function updateUserData(idx) {
         }));
 
         if (id && name && lastname && age && email && password) {
-            const res = await fetch("http://localhost:8080/api", {
+            const res = await fetch("http://localhost:8080/myDB", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
